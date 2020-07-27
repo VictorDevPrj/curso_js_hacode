@@ -3,9 +3,15 @@ class UserController {
     constructor(formId, tableId) {
         this.formEl = document.getElementById(formId)
         this.tableEl = document.getElementById(tableId)
-
-        console.log(this.formEl)
+        
         this.onSubmit();
+        this.onEdit();
+    }
+
+    onEdit() {
+        document.querySelector("#box-user-update .btn-cancel").addEventListener("click", e => {
+            this.showPanelCreate();
+        })
     }
 
     onSubmit() {
@@ -129,14 +135,63 @@ class UserController {
             <td>${Utils.dateFormat(dataUser.register)}</td>
             
             <td>
-                <button type="button" class="btn btn-primary btn-xs btn-flat">Editar</button>
+                <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
                 <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
             </td>`;
+
+        tr.querySelector(".btn-edit").addEventListener("click", e=> {
+            let json = JSON.parse(tr.dataset.user);
+
+            let form = document.querySelector("#form-user-update");
+
+            for (let name in json) {
+                let field = form.querySelector("[name=" + name.replace("_", "") + "]");
+
+                
+                if (field) {
+
+                    switch (field.type) {
+                        case 'file':
+                            continue;
+                        break;
+
+                        case 'radio':
+                            field = form.querySelector("[name=" + name.replace("_", "") + "][value" + json[name] + "]");
+                        
+                            field.checked = true;
+                           
+                        break;
+
+                        case 'checkbox':
+                            field.checked = json[name];
+                        break;
+
+                        default:
+                            field.value = json[name];
+                        
+                    }
+
+                }
+
+            }
+
+            this.showPanelUpadate();
+
+        }); 
 
         this.tableEl.appendChild(tr);
 
         this.updateCount();
+    }
 
+    showPanelCreate() {
+        document.querySelector("#box-user-create").style.display = "block";
+        document.querySelector("#box-user-update").style.display = "none";
+    }
+
+    showPanelUpadate() {
+        document.querySelector("#box-user-create").style.display = "none";
+        document.querySelector("#box-user-update").style.display = "block";
     }
 
     updateCount() {
@@ -155,7 +210,7 @@ class UserController {
 
         document.querySelector("#number-users").innerHTML = numberUsers;
         document.querySelector("#number-users-admin").innerHTML = numberAdmin;
-		console.log(tr.dataset.user);
+		
     }
 
 }
